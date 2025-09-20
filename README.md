@@ -17,3 +17,18 @@ Eliminates the end screen elements, including video cards and end-of-video sugge
 
 Description:
 Disables autoplay and the “Up Next” countdown, preventing YouTube from automatically playing the next video, giving you full control over your watch session.
+
+4️⃣YouTube Shorts Button Killer (Optimized)
+
+Description:
+Removes the Shorts button from YouTube, preventing the interface from redirecting you to Shorts content, so you can focus entirely on regular videos without interruption.
+
+5️⃣ YouTube Shorts Terminator (Optimized)
+
+Description:
+Blocks all YouTube Shorts content, including recommendations and links, ensuring a completely Shorts-free viewing experience while keeping the rest of the platform accessible.
+
+6️⃣YouTube Shorts & Breaking News Eliminator (Ultimate)
+
+Description:
+Completely removes all traces of YouTube Shorts and Breaking News — including buttons, tabs, shelves, and thumbnails — for a distraction-free, clean YouTube experience. Works seamlessly with uBlock Origin (or compatible adblockers).
