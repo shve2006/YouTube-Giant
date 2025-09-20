@@ -1,0 +1,33 @@
+// ==UserScript==
+// @name         YouTube Total Up Next Killer (Optimized)
+// @namespace    http://tampermonkey.net/
+// @version      1.0
+// @description  Completely hide YouTube Up Next section efficiently
+// @match        https://www.youtube.com/*
+// @run-at       document-idle
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    function hideUpNext() {
+        const upNext = document.querySelector('.ytp-upnext, #related');
+        if (upNext) {
+            upNext.style.display = 'none';
+        }
+        const video = document.querySelector('video');
+        if (video && !video.paused) {
+            video.autoplay = false;
+        }
+    }
+
+    let lastUrl = location.href;
+    new MutationObserver(() => {
+        if (location.href !== lastUrl) {
+            lastUrl = location.href;
+            hideUpNext();
+        }
+    }).observe(document.body, {childList: true, subtree: true});
+
+    hideUpNext();
+})();
