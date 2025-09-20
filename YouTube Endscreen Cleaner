@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         YouTube - Remove Sidebar & Endscreen (Lightweight)
+// @name         YouTube Endscreen (Lightweight)
 // @namespace    http://tampermonkey.net/
 // @version      1.0
 // @description  Remove right sidebar recommendations and endscreen suggestions without slowing YouTube
