@@ -1,0 +1,106 @@
+// ==UserScript==
+// @name         YouTube Audio-Only
+// @namespace    http://tampermonkey.net/
+// @version      1.2
+// @description  Audio Only
+// @author       Hassan
+// @match        https://www.youtube.com/*
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    // Wait for element helper
+    function waitForSelector(selector, callback) {
+        const el = document.querySelector(selector);
+        if(el){
+            callback(el);
+        } else {
+            setTimeout(() => waitForSelector(selector, callback), 500);
+        }
+    }
+
+    // Activate Audio Only
+    function activateAudioOnly(quality=128) {
+        const video = document.querySelector('video');
+        if(video){
+            video.muted = false;
+            video.style.display = 'none';
+            if(video.setPlaybackQualityRange){
+                video.setPlaybackQualityRange('tiny'); // minimal video
+            }
+            console.log(`Audio Only activated, quality: ${quality} kbps`);
+        }
+    }
+
+    // Restore Video
+    function restoreVideo() {
+        const video = document.querySelector('video');
+        if(video){
+            video.style.display = 'block';
+            video.play();
+            console.log('Video restored');
+        }
+    }
+
+    // Add buttons next to Like
+    function addAudioButtons() {
+        waitForSelector('#top-level-buttons-computed', (container) => {
+            if(container.querySelector('#audioOnlyBtn')) return;
+
+            // Audio Only button
+            const btnAudio = document.createElement('button');
+            btnAudio.id = 'audioOnlyBtn';
+            btnAudio.textContent = 'Audio Only';
+            btnAudio.style.marginRight = '6px';
+            btnAudio.style.padding = '4px 8px';
+            btnAudio.style.background = '#ff0000';
+            btnAudio.style.color = '#fff';
+            btnAudio.style.border = 'none';
+            btnAudio.style.borderRadius = '4px';
+            btnAudio.style.cursor = 'pointer';
+
+            // Quality selector
+            const select = document.createElement('select');
+            select.style.marginLeft = '4px';
+            select.style.padding = '2px 4px';
+            select.add(new Option('128 kbps', 128));
+            select.add(new Option('320 kbps', 320));
+
+            btnAudio.onclick = () => {
+                const quality = parseInt(select.value);
+                activateAudioOnly(quality);
+            };
+
+            // Restore button
+            const btnRestore = document.createElement('button');
+            btnRestore.id = 'restoreVideoBtn';
+            btnRestore.textContent = 'Restore Video';
+            btnRestore.style.marginLeft = '6px';
+            btnRestore.style.padding = '4px 8px';
+            btnRestore.style.background = '#00aaff';
+            btnRestore.style.color = '#fff';
+            btnRestore.style.border = 'none';
+            btnRestore.style.borderRadius = '4px';
+            btnRestore.style.cursor = 'pointer';
+            btnRestore.onclick = restoreVideo;
+
+            // Insert buttons LEFT of Like
+            const likeBtn = container.querySelector('ytd-toggle-button-renderer.style-scope:nth-child(1)');
+            if(likeBtn){
+                container.insertBefore(btnAudio, likeBtn);
+                container.insertBefore(select, likeBtn);
+                container.insertBefore(btnRestore, likeBtn);
+            } else {
+                container.appendChild(btnAudio);
+                container.appendChild(select);
+                container.appendChild(btnRestore);
+            }
+        });
+    }
+
+    // Periodically check for SPA navigation
+    setInterval(addAudioButtons, 2000);
+
+})();
