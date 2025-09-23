@@ -11,7 +11,8 @@ Removes the right sidebar on YouTube, hiding recommended videos and suggested co
 2️⃣ YouTube Endscreen Cleaner
 
 Description:
-Eliminates the end screen elements, including video cards and end-of-video suggestions, providing a clean and distraction-free viewing experience.
+This custom filter removes YouTube’s end screen elements (the suggested videos and playlists that appear at the end of a video). It hides all overlay layers responsible for showing these recommendations.
+Note: This works only with uBlock Origin and will not function with Tampermonkey or other extensions.
 
 3️⃣ YouTube Autoplay & Up Next Eliminator
 
