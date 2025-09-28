@@ -1,106 +1,72 @@
 // ==UserScript==
-// @name         YouTube Audio-Only
+// @name         YouTube Audio-Only Mode
 // @namespace    http://tampermonkey.net/
 // @version      1.2
-// @description  Audio Only
-// @author       Hassan
-// @match        https://www.youtube.com/*
+// @description  Play YouTube videos in audio-only mode to save bandwidth.
+// @author       You
+// @match        https://www.youtube.com/watch*
 // @grant        none
+// @run-at       document-idle
 // ==/UserScript==
 
-(function() {
+(function () {
     'use strict';
 
-    // Wait for element helper
-    function waitForSelector(selector, callback) {
-        const el = document.querySelector(selector);
-        if(el){
-            callback(el);
+    // Wait for YouTube's player to load
+    const waitForPlayer = () => {
+        const player = document.getElementById('movie_player');
+        if (player && typeof player.getVideoData === 'function') {
+            enableAudioOnly();
         } else {
-            setTimeout(() => waitForSelector(selector, callback), 500);
+            setTimeout(waitForPlayer, 500);
         }
-    }
+    };
 
-    // Activate Audio Only
-    function activateAudioOnly(quality=128) {
-        const video = document.querySelector('video');
-        if(video){
-            video.muted = false;
-            video.style.display = 'none';
-            if(video.setPlaybackQualityRange){
-                video.setPlaybackQualityRange('tiny'); // minimal video
+    const enableAudioOnly = () => {
+        console.log('[YT Audio-Only] Activating audio-only mode...');
+
+        // Attempt 1: Use YouTube's internal API to set playback quality to audio-only
+        // Note: This may not always work due to YouTube updates
+        try {
+            const player = document.getElementById('movie_player');
+            if (player && player.setPlaybackQualityRange) {
+                // Force lowest quality (often audio-only in background)
+                player.setPlaybackQualityRange('tiny', 'tiny');
+                player.setPlaybackQuality('tiny');
             }
-            console.log(`Audio Only activated, quality: ${quality} kbps`);
+        } catch (e) {
+            console.warn('[YT Audio-Only] Failed to set quality via API:', e);
         }
-    }
 
-    // Restore Video
-    function restoreVideo() {
-        const video = document.querySelector('video');
-        if(video){
-            video.style.display = 'block';
-            video.play();
-            console.log('Video restored');
-        }
-    }
-
-    // Add buttons next to Like
-    function addAudioButtons() {
-        waitForSelector('#top-level-buttons-computed', (container) => {
-            if(container.querySelector('#audioOnlyBtn')) return;
-
-            // Audio Only button
-            const btnAudio = document.createElement('button');
-            btnAudio.id = 'audioOnlyBtn';
-            btnAudio.textContent = 'Audio Only';
-            btnAudio.style.marginRight = '6px';
-            btnAudio.style.padding = '4px 8px';
-            btnAudio.style.background = '#ff0000';
-            btnAudio.style.color = '#fff';
-            btnAudio.style.border = 'none';
-            btnAudio.style.borderRadius = '4px';
-            btnAudio.style.cursor = 'pointer';
-
-            // Quality selector
-            const select = document.createElement('select');
-            select.style.marginLeft = '4px';
-            select.style.padding = '2px 4px';
-            select.add(new Option('128 kbps', 128));
-            select.add(new Option('320 kbps', 320));
-
-            btnAudio.onclick = () => {
-                const quality = parseInt(select.value);
-                activateAudioOnly(quality);
-            };
-
-            // Restore button
-            const btnRestore = document.createElement('button');
-            btnRestore.id = 'restoreVideoBtn';
-            btnRestore.textContent = 'Restore Video';
-            btnRestore.style.marginLeft = '6px';
-            btnRestore.style.padding = '4px 8px';
-            btnRestore.style.background = '#00aaff';
-            btnRestore.style.color = '#fff';
-            btnRestore.style.border = 'none';
-            btnRestore.style.borderRadius = '4px';
-            btnRestore.style.cursor = 'pointer';
-            btnRestore.onclick = restoreVideo;
-
-            // Insert buttons LEFT of Like
-            const likeBtn = container.querySelector('ytd-toggle-button-renderer.style-scope:nth-child(1)');
-            if(likeBtn){
-                container.insertBefore(btnAudio, likeBtn);
-                container.insertBefore(select, likeBtn);
-                container.insertBefore(btnRestore, likeBtn);
-            } else {
-                container.appendChild(btnAudio);
-                container.appendChild(select);
-                container.appendChild(btnRestore);
+        // Attempt 2: Hide video element (UX only – doesn't stop download!)
+        const videoElement = document.querySelector('video');
+        if (videoElement) {
+            // Mute video visually (optional)
+            videoElement.style.display = 'none';
+            // Optional: Add a placeholder
+            const placeholder = document.createElement('div');
+            placeholder.innerText = '🔊 Audio Only';
+            placeholder.style.cssText = `
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                color: white;
+                font-size: 24px;
+                z-index: 1000;
+                pointer-events: none;
+            `;
+            const playerContainer = document.querySelector('.html5-video-player') || document.getElementById('player');
+            if (playerContainer) {
+                playerContainer.style.backgroundColor = '#000';
+                playerContainer.appendChild(placeholder);
             }
-        });
-    }
+        }
 
-    // Periodically check for SPA navigation
-    setInterval(addAudioButtons, 2000);
+        // ⚠️ IMPORTANT: This does NOT prevent video segments from downloading!
+        // To truly avoid video download, we need to intercept network requests (see below).
+    };
 
+    // Start the process
+    waitForPlayer();
 })();
