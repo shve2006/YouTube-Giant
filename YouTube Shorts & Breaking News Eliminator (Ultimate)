@@ -4,27 +4,23 @@ Copy and paste the following code into uBlock’s “My Filters”:
 
 
 
-! ====== Remove Shorts button in the left mini guide (sidebar) ======
-www.youtube.com##ytd-mini-guide-entry-renderer:has-text(Shorts)
-www.youtube.com##ytd-guide-entry-renderer:has-text(Shorts)
-
-! ====== Remove Shorts tab in the top navigation bar ======
-www.youtube.com##tp-yt-paper-tab:has(a[href^="/shorts"])
-www.youtube.com##a[title="Shorts"]
+! ====== BLOCK SHORTS COMPLETELY ======
 www.youtube.com##a[href^="/shorts"]
+www.youtube.com##ytd-reel-shelf-renderer
+www.youtube.com##ytd-reel-item-renderer
+www.youtube.com##ytd-rich-shelf-renderer:has-text(/Shorts/i)
+www.youtube.com##[aria-label="Shorts"]
+www.youtube.com##ytd-mini-guide-entry-renderer:has(a[href^="/shorts"])
 
-! ====== Remove Shorts video shelves on homepage and elsewhere ======
-www.youtube.com##ytd-rich-shelf-renderer:has-text(Shorts)
-www.youtube.com##ytd-rich-item-renderer:has(a[href^="/shorts"])
-www.youtube.com##ytd-rich-grid-media:has(a[href^="/shorts"])
+! ====== HIDE UP NEXT & END SCREEN ======
+www.youtube.com##.ytp-endscreen-content
+www.youtube.com##.ytp-upnext
+www.youtube.com##.ytp-ce-element
+www.youtube.com##.ytp-ce-covering-overlay
 
-! ====== Remove Shorts thumbnails anywhere on site ======
-www.youtube.com##ytd-thumbnail a[href^="/shorts"]
+! ====== REMOVE RIGHT SIDEBAR (RECOMMENDED) ======
+www.youtube.com###related
 
-! ====== Remove Shorts from subscriptions and other feeds ======
-www.youtube.com##ytd-rich-shelf-renderer:has-text(Shorts)
-www.youtube.com##ytd-video-renderer:has(a[href^="/shorts"])
-
-www.youtube.com##ytd-rich-shelf-renderer:has-text(Breaking news)
-www.youtube.com##ytd-rich-grid-media:has-text(Breaking news)
-iv class="flex justify-between gap-[0.5rem] text-secondary py-xs">
+! Optional: widen player
+www.youtube.com#$#body#body { margin: 0 !important; } 
+www.youtube.com#$#.ytd-watch-flexy[flexy][is-two-columns_]:not([fullscreen]) #primary.ytd-watch-flexy { width: calc(100% - 40px) !important; }
