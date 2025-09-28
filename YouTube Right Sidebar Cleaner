@@ -1,21 +1,26 @@
 // ==UserScript==
-// @name         YouTube - Remove Right Sidebar (Lightweight)
+// @name         YouTube - Remove Right Sidebar (Fixed)
 // @namespace    http://tampermonkey.net/
-// @version      1.1
-// @description  Remove right-side recommended videos without slowing YouTube
-// @author       You
-// @match        https://www.youtube.com/*
+// @version      1.2
+// @description  Remove right-side recommendations on video pages
+// @match        https://www.youtube.com/watch*
 // @grant        none
 // ==/UserScript==
 
-(function() {
+(function () {
     'use strict';
 
     function removeSidebar() {
-        const sidebar = document.getElementById('secondary');
-        if (sidebar) sidebar.remove();
+        const secondary = document.getElementById('secondary');
+        if (secondary) {
+            secondary.style.display = 'none';
+            // Optional: widen main content
+            const primary = document.getElementById('primary');
+            if (primary) primary.style.maxWidth = 'none';
+        }
     }
 
-    // Run once when navigating
+    // Run on initial load and SPA navigation
+    removeSidebar();
     document.addEventListener('yt-navigate-finish', removeSidebar);
 })();
