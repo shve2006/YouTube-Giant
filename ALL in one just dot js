@@ -1,0 +1,145 @@
+// ==UserScript==
+// @name         YouTube All-in-One Control (Fixed)
+// @namespace    http://tampermonkey.net/
+// @version      5.0
+// @description  Disable autoplay, remove Shorts/sidebar/miniplayer, center video, audio-only mode (A), restore fullscreen.
+// @author       You
+// @match        https://www.youtube.com/*
+// @grant        none
+// @run-at       document-idle
+// ==/UserScript==
+
+(function () {
+    'use strict';
+
+    // =============== INJECT CSS (layout + hiding) ===============
+    const style = document.createElement('style');
+    style.textContent = `
+        /* Remove right sidebar & recommendations */
+        #secondary, #related, ytd-watch-next-secondary-results-renderer {
+            display: none !important;
+        }
+
+        /* CENTER VIDEO — fixes shifting on 1920x1080 */
+        #primary {
+            max-width: none !important;
+            padding-right: 0 !important;
+            margin: 0 auto !important;
+        }
+        ytd-watch-flexy[is-two-columns_] #primary {
+            width: calc(100% - 40px) !important;
+        }
+        #player-container-outer {
+            max-width: 100% !important;
+            margin: 0 auto !important;
+        }
+
+        /* Block Shorts */
+        a[href^="/shorts"],
+        ytd-reel-shelf-renderer,
+        ytd-reel-item-renderer,
+        [aria-label="Shorts"],
+        [title="Shorts"] {
+            display: none !important;
+        }
+
+        /* Hide miniplayer & autoplay UI */
+        ytd-miniplayer,
+        .ytp-miniplayer-button,
+        .ytp-autonav-endscreen-upnext-button,
+        .ytp-autonav-toggle-button,
+        .ytp-autonav-endscreen {
+            display: none !important;
+        }
+
+        /* Disable hover previews */
+        ytd-thumbnail { pointer-events: none !important; }
+        ytd-rich-item-renderer a, ytd-video-renderer a { pointer-events: auto !important; }
+    `;
+    document.head.appendChild(style);
+
+    // =============== DISABLE AUTOPLAY ===============
+    function disableAutoplay() {
+        const player = document.getElementById('movie_player');
+        if (player?.setAutonavState) player.setAutonavState(false);
+        if (window.yt?.config_) {
+            yt.config_.AUTONAV_ENABLED = false;
+            yt.config_.AUTOPLAY = false;
+        }
+    }
+
+    // =============== AUDIO-ONLY MODE ===============
+    const VIDEO_ITAGS = new Set([
+        17,18,22,34,35,36,37,38,43,44,45,46,
+        133,134,135,136,137,138,160,
+        242,243,244,245,246,247,248,
+        271,272,278,298,299,302,303,308,313,315,330,331,332,333,334,335,336,337
+    ]);
+
+    let audioOnlyEnabled = localStorage.getItem('yt_audio_only_enabled') === 'true';
+
+    // Intercept video streams
+    const originalFetch = window.fetch;
+    window.fetch = function (...args) {
+        try {
+            const url = typeof args[0] === 'string' ? args[0] : args[0]?.url || '';
+            if (audioOnlyEnabled && (url.includes('googlevideo.com') || url.includes('youtube.com')) && url.includes('itag=')) {
+                const match = url.match(/[?&]itag=(\\d+)/);
+                if (match && VIDEO_ITAGS.has(Number(match[1]))) {
+                    return Promise.resolve(new Response('', { status: 204 }));
+                }
+            }
+        } catch (e) {}
+        return originalFetch.apply(this, args);
+    };
+
+    // Apply audio state
+    function applyAudioState() {
+        const video = document.querySelector('video');
+        if (video) video.style.display = audioOnlyEnabled ? 'none' : '';
+    }
+
+    // Toggle with 'A'
+    document.addEventListener('keydown', (e) => {
+        if ((e.key === 'a' || e.key === 'A') && !e.target.closest('input, textarea, [contenteditable]')) {
+            e.preventDefault();
+            audioOnlyEnabled = !audioOnlyEnabled;
+            localStorage.setItem('yt_audio_only_enabled', audioOnlyEnabled);
+            applyAudioState();
+            console.log(`[YT] Audio Only: ${audioOnlyEnabled ? 'ON' : 'OFF'}`);
+        }
+    });
+
+    // =============== RESTORE FULLSCREEN BUTTON ===============
+    function addFullscreenButton() {
+        const controls = document.querySelector('.ytp-right-controls');
+        if (!controls || controls.querySelector('#custom-fullscreen-btn')) return;
+
+        const btn = document.createElement('button');
+        btn.id = 'custom-fullscreen-btn';
+        btn.className = 'ytp-button';
+        btn.title = 'Fullscreen (F)';
+        btn.innerHTML = `<svg height="100%" viewBox="0 0 36 36" width="100%"><path fill="white" d="M12 12h4v-2H10v6h2v-4zm12 0v4h2v-6h-6v2h4zm0 12h-4v2h6v-6h-2v4zm-12 0v-4H10v6h6v-2h-4z"/></svg>`;
+        btn.onclick = () => document.querySelector('.html5-video-player')?.toggleFullscreen?.();
+
+        const captions = controls.querySelector('.ytp-subtitles-button');
+        if (captions) controls.insertBefore(btn, captions);
+        else controls.appendChild(btn);
+    }
+
+    // =============== INITIALIZE ===============
+    function init() {
+        if (location.pathname === '/watch') {
+            disableAutoplay();
+            applyAudioState();
+            const iv = setInterval(() => {
+                addFullscreenButton();
+                if (document.querySelector('.ytp-play-button')) clearInterval(iv);
+            }, 1000);
+        }
+    }
+
+    // Run on load and SPA navigation
+    init();
+    document.addEventListener('yt-navigate-finish', init);
+})();
