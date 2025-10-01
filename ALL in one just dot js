@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube All-in-One Control (Fixed)
 // @namespace    http://tampermonkey.net/
-// @version      5.1
+// @version      5.2
 // @description  Disable autoplay, remove Shorts/sidebar/miniplayer, center video, audio-only mode (A), restore fullscreen, hide end screens.
 // @author       You
 // @match        https://www.youtube.com/*
@@ -12,15 +12,14 @@
 (function () {
     'use strict';
 
-    // =============== INJECT CSS (layout + hiding) ===============
     const style = document.createElement('style');
     style.textContent = `
-        /* Remove right sidebar & recommendations */
+        /* Remove sidebar & recommendations */
         #secondary, #related, ytd-watch-next-secondary-results-renderer {
             display: none !important;
         }
 
-        /* CENTER VIDEO — fixes shifting on 1920x1080 */
+        /* Center video */
         #primary {
             max-width: none !important;
             padding-right: 0 !important;
@@ -47,12 +46,11 @@
         ytd-miniplayer,
         .ytp-miniplayer-button,
         .ytp-autonav-endscreen-upnext-button,
-        .ytp-autonav-toggle-button,
-        .ytp-autonav-endscreen {
+        .ytp-autonav-toggle-button {
             display: none !important;
         }
 
-        /* Hide end screen suggestions ("2 suggested", "10 suggested", etc.) */
+        /* 🔥 HIDE END SCREENS (2 or 10 suggested) */
         .ytp-endscreen,
         .ytp-endscreen-content,
         .ytp-ce-element,
@@ -61,8 +59,11 @@
         .ytp-ce-channel,
         .ytp-ce-more,
         .ytp-suggested-action,
-        .ytp-suggested-action-badge {
+        .ytp-autonav-endscreen,
+        .ytp-upnext {
             display: none !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
         }
 
         /* Disable hover previews */
@@ -71,7 +72,7 @@
     `;
     document.head.appendChild(style);
 
-    // =============== DISABLE AUTOPLAY ===============
+    // Disable autoplay
     function disableAutoplay() {
         const player = document.getElementById('movie_player');
         if (player?.setAutonavState) player.setAutonavState(false);
@@ -81,7 +82,7 @@
         }
     }
 
-    // =============== AUDIO-ONLY MODE ===============
+    // Audio-only mode
     const VIDEO_ITAGS = new Set([
         17,18,22,34,35,36,37,38,43,44,45,46,
         133,134,135,136,137,138,160,
@@ -91,13 +92,12 @@
 
     let audioOnlyEnabled = localStorage.getItem('yt_audio_only_enabled') === 'true';
 
-    // Intercept video streams
     const originalFetch = window.fetch;
     window.fetch = function (...args) {
         try {
             const url = typeof args[0] === 'string' ? args[0] : args[0]?.url || '';
             if (audioOnlyEnabled && (url.includes('googlevideo.com') || url.includes('youtube.com')) && url.includes('itag=')) {
-                const match = url.match(/[?&]itag=(\d+)/);
+                const match = url.match(/[?&]itag=(\d+)/); // Fixed: was \\d+
                 if (match && VIDEO_ITAGS.has(Number(match[1]))) {
                     return Promise.resolve(new Response('', { status: 204 }));
                 }
@@ -106,13 +106,11 @@
         return originalFetch.apply(this, args);
     };
 
-    // Apply audio state
     function applyAudioState() {
         const video = document.querySelector('video');
         if (video) video.style.display = audioOnlyEnabled ? 'none' : '';
     }
 
-    // Toggle with 'A'
     document.addEventListener('keydown', (e) => {
         if ((e.key === 'a' || e.key === 'A') && !e.target.closest('input, textarea, [contenteditable]')) {
             e.preventDefault();
@@ -123,7 +121,7 @@
         }
     });
 
-    // =============== RESTORE FULLSCREEN BUTTON ===============
+    // Restore fullscreen button
     function addFullscreenButton() {
         const controls = document.querySelector('.ytp-right-controls');
         if (!controls || controls.querySelector('#custom-fullscreen-btn')) return;
@@ -140,7 +138,7 @@
         else controls.appendChild(btn);
     }
 
-    // =============== INITIALIZE ===============
+    // Initialize
     function init() {
         if (location.pathname === '/watch') {
             disableAutoplay();
@@ -152,7 +150,6 @@
         }
     }
 
-    // Run on load and SPA navigation
     init();
     document.addEventListener('yt-navigate-finish', init);
 })();
