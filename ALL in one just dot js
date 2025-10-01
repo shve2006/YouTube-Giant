@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         YouTube All-in-One Control (Fixed)
 // @namespace    http://tampermonkey.net/
-// @version      5.0
-// @description  Disable autoplay, remove Shorts/sidebar/miniplayer, center video, audio-only mode (A), restore fullscreen.
+// @version      5.1
+// @description  Disable autoplay, remove Shorts/sidebar/miniplayer, center video, audio-only mode (A), restore fullscreen, hide end screens.
 // @author       You
 // @match        https://www.youtube.com/*
 // @grant        none
@@ -52,6 +52,19 @@
             display: none !important;
         }
 
+        /* Hide end screen suggestions ("2 suggested", "10 suggested", etc.) */
+        .ytp-endscreen,
+        .ytp-endscreen-content,
+        .ytp-ce-element,
+        .ytp-ce-video,
+        .ytp-ce-playlist,
+        .ytp-ce-channel,
+        .ytp-ce-more,
+        .ytp-suggested-action,
+        .ytp-suggested-action-badge {
+            display: none !important;
+        }
+
         /* Disable hover previews */
         ytd-thumbnail { pointer-events: none !important; }
         ytd-rich-item-renderer a, ytd-video-renderer a { pointer-events: auto !important; }
@@ -84,7 +97,7 @@
         try {
             const url = typeof args[0] === 'string' ? args[0] : args[0]?.url || '';
             if (audioOnlyEnabled && (url.includes('googlevideo.com') || url.includes('youtube.com')) && url.includes('itag=')) {
-                const match = url.match(/[?&]itag=(\\d+)/);
+                const match = url.match(/[?&]itag=(\d+)/);
                 if (match && VIDEO_ITAGS.has(Number(match[1]))) {
                     return Promise.resolve(new Response('', { status: 204 }));
                 }
