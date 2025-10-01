@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         YouTube All-in-One Control (Fixed)
+// @name         YouTube All-in-One Control (Classic Feed)
 // @namespace    http://tampermonkey.net/
-// @version      5.3
-// @description  Disable autoplay, remove Shorts/sidebar/miniplayer, center video, audio-only mode (A), restore fullscreen, hide end screens, disable hover previews everywhere.
+// @version      7.0
+// @description  Restores classic YouTube: homepage = only subscribed channels. No recommendations, Shorts, hover/scroll autoplay, or end screens. Audio-only (A), centered video, fullscreen button.
 // @author       You
 // @match        https://www.youtube.com/*
 // @grant        none
@@ -12,15 +12,23 @@
 (function () {
     'use strict';
 
-    // =============== INJECT CSS (layout + hiding) ===============
+    // =============== REDIRECT HOMEPAGE TO PURE SUBSCRIPTIONS FEED ===============
+    if ((location.pathname === '/' || location.pathname === '/index.html') && !location.search.includes('disable_redirect')) {
+        if (!location.href.includes('/feed/subscriptions')) {
+            location.replace('https://www.youtube.com/feed/subscriptions');
+            return; // Stop further execution on redirect
+        }
+    }
+
+    // =============== INJECT CSS ===============
     const style = document.createElement('style');
     style.textContent = `
-        /* Remove right sidebar & recommendations */
+        /* Remove sidebar & related videos */
         #secondary, #related, ytd-watch-next-secondary-results-renderer {
             display: none !important;
         }
 
-        /* CENTER VIDEO */
+        /* Center main video */
         #primary {
             max-width: none !important;
             padding-right: 0 !important;
@@ -34,7 +42,7 @@
             margin: 0 auto !important;
         }
 
-        /* Block Shorts */
+        /* Block Shorts everywhere */
         a[href^="/shorts"],
         ytd-reel-shelf-renderer,
         ytd-reel-item-renderer,
@@ -47,28 +55,21 @@
         ytd-miniplayer,
         .ytp-miniplayer-button,
         .ytp-autonav-endscreen-upnext-button,
-        .ytp-autonav-toggle-button,
-        .ytp-autonav-endscreen {
+        .ytp-autonav-toggle-button {
             display: none !important;
         }
 
-        /* 🔥 DISABLE HOVER PREVIEWS EVERYWHERE (History, Home, Search, etc.) */
+        /* 🔥 DISABLE HOVER PREVIEWS */
         #thumbnail-preview-container,
         #preview-player,
         ytd-thumbnail-overlay-preview-video,
         yt-thumbnail-preview-renderer,
-        ytd-thumbnail-overlay-hover-text-content,
-        ytd-thumbnail-overlay-time-status {
+        ytd-thumbnail-overlay-hover-text-content {
             display: none !important;
             visibility: hidden !important;
         }
 
-        /* Ensure thumbnails remain clickable */
-        ytd-thumbnail a {
-            pointer-events: auto !important;
-        }
-
-        /* 🔥 HIDE END SCREEN SUGGESTIONS (2 or 10 videos) */
+        /* 🔥 HIDE END SCREENS */
         .ytp-endscreen,
         .ytp-endscreen-content,
         .ytp-ce-element,
@@ -79,30 +80,60 @@
         .ytp-suggested-action,
         .ytp-upnext {
             display: none !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
         }
 
-        /* Disable hover previews via pointer-events (fallback) */
-        ytd-thumbnail {
-            pointer-events: none !important;
+        /* 🔍 CLEAN SEARCH RESULTS */
+        ytd-section-list-renderer > #contents > ytd-item-section-renderer:not(:nth-of-type(-n+2)),
+        ytd-shelf-renderer,
+        ytd-rich-shelf-renderer,
+        ytd-ad-slot-renderer,
+        ytd-compact-promoted-sparkles-web-renderer {
+            display: none !important;
         }
-        ytd-rich-item-renderer a,
-        ytd-video-renderer a,
+
+        /* 🧼 PURE SUBSCRIPTIONS FEED (only on /feed/subscriptions) */
+        ytd-browse[page-subtype="subscriptions"] ytd-shelf-renderer,
+        ytd-browse[page-subtype="subscriptions"] ytd-reel-shelf-renderer,
+        ytd-browse[page-subtype="subscriptions"] ytd-rich-shelf-renderer,
+        ytd-browse[page-subtype="subscriptions"] ytd-ad-slot-renderer,
+        ytd-browse[page-subtype="subscriptions"] ytd-compact-promoted-sparkles-web-renderer,
+        ytd-browse[page-subtype="subscriptions"] [title="Shorts"],
+        ytd-browse[page-subtype="subscriptions"] a[href^="/shorts"],
+        ytd-browse[page-subtype="subscriptions"] ytd-item-section-renderer[section-title] {
+            display: none !important;
+        }
+
+        /* Ensure real subscription videos stay visible */
+        ytd-browse[page-subtype="subscriptions"] ytd-grid-video-renderer,
+        ytd-browse[page-subtype="subscriptions"] ytd-video-renderer {
+            display: block !important;
+        }
+
+        /* Keep thumbnails clickable */
         ytd-thumbnail a {
             pointer-events: auto !important;
         }
     `;
     document.head.appendChild(style);
 
-    // =============== DISABLE AUTOPLAY ===============
-    function disableAutoplay() {
-        const player = document.getElementById('movie_player');
-        if (player?.setAutonavState) player.setAutonavState(false);
+    // =============== BLOCK AUTOPLAY ON SCROLL/HOVER ===============
+    function blockAutoPlay() {
         if (window.yt?.config_) {
-            yt.config_.AUTONAV_ENABLED = false;
             yt.config_.AUTOPLAY = false;
+            yt.config_.AUTOPLAY_SCROLLING = false;
+            yt.config_.AUTONAV_ENABLED = false;
         }
+
+        document.querySelectorAll('video').forEach(video => {
+            if (!video.hasAttribute('data-autoplay-blocked')) {
+                video.pause();
+                video.muted = true;
+                video.setAttribute('data-autoplay-blocked', 'true');
+                video.addEventListener('play', (e) => {
+                    if (!e.isTrusted) video.pause();
+                }, true);
+            }
+        });
     }
 
     // =============== AUDIO-ONLY MODE ===============
@@ -120,7 +151,7 @@
         try {
             const url = typeof args[0] === 'string' ? args[0] : args[0]?.url || '';
             if (audioOnlyEnabled && (url.includes('googlevideo.com') || url.includes('youtube.com')) && url.includes('itag=')) {
-                const match = url.match(/[?&]itag=(\d+)/); // Fixed regex
+                const match = url.match(/[?&]itag=(\d+)/);
                 if (match && VIDEO_ITAGS.has(Number(match[1]))) {
                     return Promise.resolve(new Response('', { status: 204 }));
                 }
@@ -161,11 +192,24 @@
         else controls.appendChild(btn);
     }
 
+    // =============== OBSERVER FOR DYNAMIC CONTENT ===============
+    const observer = new MutationObserver(() => {
+        blockAutoPlay();
+        document.querySelectorAll('#preview-player, yt-thumbnail-preview-renderer').forEach(el => {
+            el.remove();
+        });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
     // =============== INITIALIZE ===============
     function init() {
+        blockAutoPlay();
+
         if (location.pathname === '/watch') {
-            disableAutoplay();
+            const player = document.getElementById('movie_player');
+            if (player?.setAutonavState) player.setAutonavState(false);
             applyAudioState();
+
             const iv = setInterval(() => {
                 addFullscreenButton();
                 if (document.querySelector('.ytp-play-button')) clearInterval(iv);
