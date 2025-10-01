@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         YouTube All-in-One Control (Fixed)
 // @namespace    http://tampermonkey.net/
-// @version      5.2
-// @description  Disable autoplay, remove Shorts/sidebar/miniplayer, center video, audio-only mode (A), restore fullscreen, hide end screens.
+// @version      5.3
+// @description  Disable autoplay, remove Shorts/sidebar/miniplayer, center video, audio-only mode (A), restore fullscreen, hide end screens, disable hover previews everywhere.
 // @author       You
 // @match        https://www.youtube.com/*
 // @grant        none
@@ -12,14 +12,15 @@
 (function () {
     'use strict';
 
+    // =============== INJECT CSS (layout + hiding) ===============
     const style = document.createElement('style');
     style.textContent = `
-        /* Remove sidebar & recommendations */
+        /* Remove right sidebar & recommendations */
         #secondary, #related, ytd-watch-next-secondary-results-renderer {
             display: none !important;
         }
 
-        /* Center video */
+        /* CENTER VIDEO */
         #primary {
             max-width: none !important;
             padding-right: 0 !important;
@@ -46,11 +47,28 @@
         ytd-miniplayer,
         .ytp-miniplayer-button,
         .ytp-autonav-endscreen-upnext-button,
-        .ytp-autonav-toggle-button {
+        .ytp-autonav-toggle-button,
+        .ytp-autonav-endscreen {
             display: none !important;
         }
 
-        /* 🔥 HIDE END SCREENS (2 or 10 suggested) */
+        /* 🔥 DISABLE HOVER PREVIEWS EVERYWHERE (History, Home, Search, etc.) */
+        #thumbnail-preview-container,
+        #preview-player,
+        ytd-thumbnail-overlay-preview-video,
+        yt-thumbnail-preview-renderer,
+        ytd-thumbnail-overlay-hover-text-content,
+        ytd-thumbnail-overlay-time-status {
+            display: none !important;
+            visibility: hidden !important;
+        }
+
+        /* Ensure thumbnails remain clickable */
+        ytd-thumbnail a {
+            pointer-events: auto !important;
+        }
+
+        /* 🔥 HIDE END SCREEN SUGGESTIONS (2 or 10 videos) */
         .ytp-endscreen,
         .ytp-endscreen-content,
         .ytp-ce-element,
@@ -59,20 +77,25 @@
         .ytp-ce-channel,
         .ytp-ce-more,
         .ytp-suggested-action,
-        .ytp-autonav-endscreen,
         .ytp-upnext {
             display: none !important;
             opacity: 0 !important;
             pointer-events: none !important;
         }
 
-        /* Disable hover previews */
-        ytd-thumbnail { pointer-events: none !important; }
-        ytd-rich-item-renderer a, ytd-video-renderer a { pointer-events: auto !important; }
+        /* Disable hover previews via pointer-events (fallback) */
+        ytd-thumbnail {
+            pointer-events: none !important;
+        }
+        ytd-rich-item-renderer a,
+        ytd-video-renderer a,
+        ytd-thumbnail a {
+            pointer-events: auto !important;
+        }
     `;
     document.head.appendChild(style);
 
-    // Disable autoplay
+    // =============== DISABLE AUTOPLAY ===============
     function disableAutoplay() {
         const player = document.getElementById('movie_player');
         if (player?.setAutonavState) player.setAutonavState(false);
@@ -82,7 +105,7 @@
         }
     }
 
-    // Audio-only mode
+    // =============== AUDIO-ONLY MODE ===============
     const VIDEO_ITAGS = new Set([
         17,18,22,34,35,36,37,38,43,44,45,46,
         133,134,135,136,137,138,160,
@@ -97,7 +120,7 @@
         try {
             const url = typeof args[0] === 'string' ? args[0] : args[0]?.url || '';
             if (audioOnlyEnabled && (url.includes('googlevideo.com') || url.includes('youtube.com')) && url.includes('itag=')) {
-                const match = url.match(/[?&]itag=(\d+)/); // Fixed: was \\d+
+                const match = url.match(/[?&]itag=(\d+)/); // Fixed regex
                 if (match && VIDEO_ITAGS.has(Number(match[1]))) {
                     return Promise.resolve(new Response('', { status: 204 }));
                 }
@@ -121,7 +144,7 @@
         }
     });
 
-    // Restore fullscreen button
+    // =============== RESTORE FULLSCREEN BUTTON ===============
     function addFullscreenButton() {
         const controls = document.querySelector('.ytp-right-controls');
         if (!controls || controls.querySelector('#custom-fullscreen-btn')) return;
@@ -138,7 +161,7 @@
         else controls.appendChild(btn);
     }
 
-    // Initialize
+    // =============== INITIALIZE ===============
     function init() {
         if (location.pathname === '/watch') {
             disableAutoplay();
