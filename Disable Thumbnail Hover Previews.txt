@@ -1,0 +1,7 @@
+www.youtube.com##ytd-thumbnail-overlay-hover-text-renderer
+www.youtube.com##ytd-thumbnail-overlay-now-playing-renderer
+www.youtube.com##.yt-thumb-overlay
+www.youtube.com##.preview-overlay
+www.youtube.com##.preview-container
+www.youtube.com##ytd-rich-item-renderer:hover ytd-thumbnail + #hover-overlays
+www.youtube.com##ytd-grid-video-renderer:hover ytd-thumbnail + #hover-overlays

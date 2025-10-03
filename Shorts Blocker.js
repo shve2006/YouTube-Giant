@@ -1,0 +1,91 @@
+// ==UserScript==
+
+
+// @name         Shorts Blocker
+
+
+// @namespace    http://tampermonkey.net/
+
+
+// @version      1.0
+
+
+// @description  Remove all YouTube Shorts everywhere efficiently
+
+
+// @match        https://www.youtube.com/*
+
+
+// @run-at       document-idle
+
+
+// ==/UserScript==
+
+
+
+
+
+(function() {
+
+
+    'use strict';
+
+
+
+
+
+    function removeShorts() {
+
+
+        // All elements with "Shorts" label or link
+
+
+        const shortsItems = document.querySelectorAll('ytd-rich-item-renderer a[href*="/shorts/"], ytd-mini-guide-entry-renderer[title="Shorts"]');
+
+
+        shortsItems.forEach(item => {
+
+
+            item.style.display = 'none';
+
+
+        });
+
+
+    }
+
+
+
+
+
+    let lastUrl = location.href;
+
+
+    new MutationObserver(() => {
+
+
+        if (location.href !== lastUrl) {
+
+
+            lastUrl = location.href;
+
+
+            removeShorts();
+
+
+        }
+
+
+    }).observe(document.body, {childList: true, subtree: true});
+
+
+
+
+
+    // Initial removal
+
+
+    removeShorts();
+
+
+})();

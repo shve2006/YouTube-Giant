@@ -1,0 +1,208 @@
+// ==UserScript==
+
+
+// @name         Autoplay Stopper
+
+
+// @namespace    http://tampermonkey.net/
+
+
+// @version      2.0
+
+
+// @description  Hide Up Next screen and prevent autoplay of next video
+
+
+// @match        https://www.youtube.com/watch*
+
+
+// @grant        none
+
+
+// @run-at       document-idle
+
+
+// ==/UserScript==
+
+
+
+
+
+(function () {
+
+
+    'use strict';
+
+
+
+
+
+    // Hide #related (right sidebar recommendations)
+
+
+    function hideRelated() {
+
+
+        const related = document.getElementById('related');
+
+
+        if (related) related.style.display = 'none';
+
+
+    }
+
+
+
+
+
+    // Hide Up Next screen (shadow DOM)
+
+
+    function hideUpNextScreen() {
+
+
+        const player = document.querySelector('#movie_player');
+
+
+        if (!player) return;
+
+
+
+
+
+        // Access shadow DOM
+
+
+        const shadowRoot = player.shadowRoot;
+
+
+        if (!shadowRoot) return;
+
+
+
+
+
+        const upNext = shadowRoot.querySelector('.ytp-upnext');
+
+
+        if (upNext) upNext.style.display = 'none';
+
+
+    }
+
+
+
+
+
+    // Disable autoplay via player API
+
+
+    function disableAutoplay() {
+
+
+        const player = document.querySelector('#movie_player');
+
+
+        if (player?.getPlayerState && typeof player.setAutoplayMode === 'function') {
+
+
+            try {
+
+
+                player.setAutoplayMode(false);
+
+
+            } catch (e) {
+
+
+                // Fallback: override internal autoplay flag
+
+
+                if (window.yt && yt.player) {
+
+
+                    yt.player.autoplay = false;
+
+
+                }
+
+
+            }
+
+
+        }
+
+
+    }
+
+
+
+
+
+    // Run on page load and navigation
+
+
+    function init() {
+
+
+        hideRelated();
+
+
+        hideUpNextScreen();
+
+
+        disableAutoplay();
+
+
+
+
+
+        // Re-run when video changes (SPA navigation)
+
+
+        if (window.yt && yt?.events && yt.events.onPageChanged) return;
+
+
+        const observer = new MutationObserver(() => {
+
+
+            if (document.querySelector('video')) {
+
+
+                hideRelated();
+
+
+                hideUpNextScreen();
+
+
+                disableAutoplay();
+
+
+            }
+
+
+        });
+
+
+        observer.observe(document.body, { childList: true, subtree: true });
+
+
+    }
+
+
+
+
+
+    // Also listen for YouTube's internal navigation
+
+
+    document.addEventListener('yt-navigate-finish', init);
+
+
+
+
+
+    init();
+
+
+})();
