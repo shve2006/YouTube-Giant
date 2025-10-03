@@ -1,47 +1,70 @@
-This project enhances your YouTube experience by removing distractions and giving you full control over your watch sessions. It cleans the interface by eliminating the right sidebar, end screen elements, and autoplay/Up Next countdowns, allowing you to focus solely on the content you choose to watch. Enjoy a clean, distraction-free, and more immersive YouTube experience.
+📁 Repository Overview
+This repository provides a suite of privacy-respecting, performance-friendly tools to customize and simplify the YouTube interface.
+It includes:
 
-Download and install the Tampermonkey extension from here https://www.tampermonkey.net .
-Go to the Tampermonkey dashboard (top-right corner), click the “+” button, and paste these codes
+9 Userscripts – JavaScript-based enhancements that run via Tampermonkey or Violentmonkey.
+6 uBlock Origin Filter Lists – Declarative rules to hide or block unwanted UI elements without executing scripts.
+All tools are designed to reduce distractions, improve focus, and restore control over your YouTube experience—without breaking core functionality.
 
-1️⃣YouTube Right Sidebar Cleaner
+🧠 Userscripts (9)
+1. Shorts Blocker
+Removes YouTube Shorts from the homepage, sidebar, and navigation by hiding all Shorts-related UI elements.
 
-Description:
-Removes the right sidebar on YouTube, hiding recommended videos and suggested content, allowing you to focus solely on the currently playing video.
+2. Shorts & News Banner Hider
+Eliminates both Shorts shelves and breaking news banners that appear at the top of the YouTube feed.
 
-2️⃣ YouTube Endscreen Cleaner
+3. Hide Shorts Button
+Conceals the Shorts camera icon in the bottom navigation bar (mobile-style UI on desktop).
 
-Description:
-This custom filter removes YouTube’s end screen elements (the suggested videos and playlists that appear at the end of a video). It hides all overlay layers responsible for showing these recommendations.
-Note: This works only with uBlock Origin and will not function with Tampermonkey or other extensions.
+4. Hide Right Sidebar
+Removes the right-hand recommendation sidebar on video pages and expands the main content area for a cleaner layout.
 
-3️⃣ YouTube Autoplay & Up Next Eliminator
+5. Classic Fullscreen Button
+Restores the native browser fullscreen button (⤢) that YouTube hides in its custom player controls.
 
-Description:
-Disables autoplay and the “Up Next” countdown, preventing YouTube from automatically playing the next video, giving you full control over your watch session.
+6. Skip End Screens
+Automatically skips or hides end screens (cards, suggested videos) that appear in the last 10–15 seconds of a video.
 
-4️⃣YouTube Shorts Button Killer (Optimized)
+7. Autoplay Stopper
+Disables autoplay for both the next video and audio-only background playback.
 
-Description:
-Removes the Shorts button from YouTube, preventing the interface from redirecting you to Shorts content, so you can focus entirely on regular videos without interruption.
+8. Audio-Only Mode
+Enables a lightweight audio-only playback mode (ideal for background listening with minimal resource usage).
 
-5️⃣ YouTube Shorts Terminator (Optimized)
+9. Disable Next Video
+Prevents YouTube from automatically loading or suggesting the next video after playback ends.
 
-Description:
+🛡️ uBlock Origin Filter Lists (6)
+1. block-shorts.txt
+Completely suppresses YouTube Shorts content: hides links, shelves, guide entries, and aria-labeled Shorts elements.
 
-Blocks all YouTube Shorts content, including recommendations and links, ensuring a completely Shorts-free viewing experience while keeping the rest of the platform accessible.
+2. hide-sidebar.txt
+Removes the #related recommendation sidebar on watch pages using efficient cosmetic filtering.
 
-6️⃣YouTube Shorts & Breaking News Eliminator (Ultimate)
-Description:
-using uBlock. It removes Shorts, breaking news banners, and other distractions for a cleaner YouTube experience.
+3. widen-player.txt
+Injects custom CSS to remove page margins and expand the primary video column to full width.
 
-7️⃣YouTube Audio-Only
-Description:
-Added an “Audio Only” option for YouTube. It allows playing just the audio to save data, with two quality choices (128 kbps and 320 kbps).
+4. no-hover-previews.txt
+Blocks all thumbnail hover overlays (title, duration, progress bar) that appear when mousing over videos.
 
-Description:
-Completely removes all traces of YouTube Shorts and Breaking News — including buttons, tabs, shelves, and thumbnails — for a distraction-free, clean YouTube experience. Works seamlessly with uBlock Origin (or compatible adblockers).
+5. disable-hover-interaction.txt
+Neutralizes hover-triggered behaviors by disabling pointer events on thumbnails while preserving link functionality.
 
-8️⃣YouTube Native Fullscreen Button Restore
+6. hide-live-badges.txt
+Conceals "LIVE" badges and removes links to live streams across feeds, search, and recommendations.
 
-Description:
-Added this fullscreen code because of a bug with [describe the specific bug]. Had to include it to make the button work properly.
+🚀 How to Use
+For Userscripts:
+Install Tampermonkey or Violentmonkey .
+Open any .user.js file in this repo and click "Install".
+Refresh YouTube to apply changes.
+For uBlock Filters:
+Install uBlock Origin .
+Go to Dashboard → Filter lists → Import.
+Paste the URL of any .txt file from this repo or import locally.
+Force-update filter lists to activate.
+✅ Philosophy
+No telemetry – All code runs locally.
+Minimal footprint – Lightweight and non-intrusive.
+User-first – Designed for focus, not engagement metrics.
+🎯 Goal: Give you back a clean, fast, and distraction-free YouTube—exactly how you want it. 
