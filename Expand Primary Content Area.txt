@@ -1,0 +1,2 @@
+www.youtube.com#$#body#body { margin: 0 !important; } 
+www.youtube.com#$#.ytd-watch-flexy[flexy][is-two-columns_]:not([fullscreen]) #primary.ytd-watch-flexy { width: calc(100% - 40px) !important; }

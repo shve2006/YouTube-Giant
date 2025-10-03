@@ -1,0 +1,3 @@
+www.youtube.com##ytd-thumbnail:style(pointer-events: none !important;)
+www.youtube.com##ytd-rich-item-renderer:style(pointer-events: auto !important;)
+www.youtube.com##ytd-rich-item-renderer a:style(pointer-events: auto !important;)
