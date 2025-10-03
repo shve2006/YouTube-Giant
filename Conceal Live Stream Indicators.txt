@@ -1,3 +1,0 @@
-youtube.com##.yt-live-badge
-youtube.com##.ytp-live-badge
-youtube.com##a[href*="/watch?"][href*="live"]
