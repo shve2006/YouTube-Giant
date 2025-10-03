@@ -1,0 +1,3 @@
+Browser extension that focuses on restoring old YouTube layout within Polymer design (modern layout). 
+
+https://github.com/omnidevZero/YouTubeRedux
