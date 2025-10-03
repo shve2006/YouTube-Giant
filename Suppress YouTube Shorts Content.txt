@@ -1,6 +1,0 @@
-www.youtube.com##a[href^="/shorts"]
-www.youtube.com##ytd-reel-shelf-renderer
-www.youtube.com##ytd-reel-item-renderer
-www.youtube.com##ytd-rich-shelf-renderer:has-text(/Shorts/i)
-www.youtube.com##[aria-label="Shorts"]
-www.youtube.com##ytd-mini-guide-entry-renderer:has(a[href^="/shorts"])
