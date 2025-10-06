@@ -6,7 +6,7 @@ It includes:
 6 uBlock Origin Filter Lists – Declarative rules to hide or block unwanted UI elements without executing scripts.
 All tools are designed to reduce distractions, improve focus, and restore control over your YouTube experience—without breaking core functionality.
 
-🧠 Userscripts (9)
+🧠 Userscripts (10)
 1. Shorts Blocker
 Removes YouTube Shorts from the homepage, sidebar, and navigation by hiding all Shorts-related UI elements.
 
@@ -33,6 +33,9 @@ Enables a lightweight audio-only playback mode (ideal for background listening w
 
 9. Disable Next Video
 Prevents YouTube from automatically loading or suggesting the next video after playback ends.
+
+10.No Ai Search
+removes all of YouTube’s algorithm-driven suggestion sections—including "People also watched", "Explore more", "Previously watched", "Channels new to you", "From related searches", "Related searches", "Recommended", "Suggested", "For you", "Popular", and "Featured"—so that when you search, you only see videos that actually contain your exact query in the title or channel name, giving you a clean, dumb, old-school search experience with no AI noise.
 
 🛡️ uBlock Origin Filter Lists (6)
 1. block-shorts.txt
