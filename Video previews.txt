@@ -1,0 +1,6 @@
+Go to youtube.com/account_playback
+Click your profile icon → Settings (⚙️)
+Go to Playback and performance
+TURN OFF this option:
+🔘 "Enable hover previews for videos"
+     
