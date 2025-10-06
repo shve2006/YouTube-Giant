@@ -53,6 +53,12 @@ Neutralizes hover-triggered behaviors by disabling pointer events on thumbnails 
 6. hide-live-badges.txt
 Conceals "LIVE" badges and removes links to live streams across feeds, search, and recommendations.
 
+🟥Native YouTube Setting Official & Permanent (1)
+
+1.Video previews
+YouTube quietly added a built-in setting to permanently disable the annoying 3-second hover previews that autoplay when you move your mouse over videos.
+This method works everywhere — Home, Search, Shorts, Subscriptions, Library, and all Explore tabs — and requires zero code, zero tools, and zero maintenance.
+
 🚀 How to Use
 For Userscripts:
 Install Tampermonkey or Violentmonkey .
