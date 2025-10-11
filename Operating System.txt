@@ -1,14 +1,36 @@
-ریزنمرات دانشگاه (هرترم)
-ریز نمرات دبیرستان، پیش‌دانشگاهی (هرترم)
-وکالتنامه بزرگ(هر صفحه)
-سند مالکیت (دفترچه ای)
-برگ سبز گمرکی(هر صفحه)
-برگ آزمایش پزشکی(بزرگ)
-بارنامه(هر صفحه)
-اوراق محضری(تعهدنامه،رضایت نامه،استشهادنامه،اقرارنامه)(هر صفحه)
-دفترچه وکالت
-اجاره نامه ،بنچاق،صلح نامه محضری(هر صفحه)
-گواهی فنی و حرفه ای (یک رو)
+Windows:
+uBlock: Yes ✅
+Tampermonkey: Yes ✅
 
-فرض بشار ذاتا از کار بیزار و تا حد امکان از کار کردن گریزان است
-t<Jt c'T Or*-,"
+Notes: Full support on most browsers.
+
+macOS:
+uBlock: Yes ✅
+Tampermonkey: Yes ✅
+
+Notes: Works on Chrome, Safari, Firefox.
+
+Linux:
+uBlock: Yes ✅
+Tampermonkey: Yes ✅
+
+Notes: Works on Chrome, Chromium, Firefox.
+
+Android:
+uBlock: No ❌ (use AdGuard or Firefox uBlock add-on instead)
+Tampermonkey: Yes ✅ (on Firefox; Chrome has limitations)
+
+iOS:
+uBlock: No ❌ (use AdGuard or 1Blocker instead)
+Tampermonkey: Yes ✅ (limited; some scripts may not run due to browser restrictions)
+
+💡 Notes:
+
+uBlock Origin doesn’t officially work on iOS or Android browsers; use AdGuard or 1Blocker instead.
+Tampermonkey apps exist for iOS and Android, but some scripts may be limited due to browser restrictions.
+Desktop browsers (Windows, macOS, Linux) have full support.
+
+💡 Notes2:
+The scripts or filters to remove YouTube Shorts do NOT work in the YouTube app on Android or iOS. They
+only work when using YouTube in a web browser (like Chrome, Firefox, Edge, or Safari). For mobile apps, you need
+alternatives like AdGuard or 1Blocker to block or filter content.
